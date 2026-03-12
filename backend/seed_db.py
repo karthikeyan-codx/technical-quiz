@@ -42,6 +42,20 @@ def get_devicon(tech, index):
     return f"https://api.dicebear.com/7.x/identicon/svg?seed={tech}{index}"
 
 def seed_questions():
+    # Force drop existing tables to fix schema mismatch (e.g., custom types)
+    from sqlalchemy import text
+    with database.engine.connect() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS answers CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS questions CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS players CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS rooms CASCADE"))
+        # Drop the custom type if it exists
+        conn.execute(text("DROP TYPE IF EXISTS questiontype"))
+        conn.commit()
+
+    # Create tables with current models
+    models.Base.metadata.create_all(bind=database.engine)
+    
     db = database.SessionLocal()
     try:
         # Clear existing questions to avoid duplicates
@@ -165,6 +179,8 @@ def seed_questions():
         db.commit()
         print(f"Successfully seeded {len(questions)} questions into the database with DevIcons.")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Error seeding database: {e}")
         db.rollback()
     finally:
