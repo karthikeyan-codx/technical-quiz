@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tech-quiz-backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql+psycopg://neondb_owner:npg_4k0SJpQMlmAF@ep-noisy-queen-amu82tww-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - key: PYTHON_VERSION
+        value: 3.13.0
