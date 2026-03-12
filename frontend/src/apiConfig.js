@@ -1,21 +1,16 @@
 const getBaseUrl = () => {
+  // Use environment variable if provided (for Production), else fallback to localhost
+  const envUrl = import.meta.env.VITE_BACKEND_URL;
+  if (envUrl) return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
+
   const hostname = window.location.hostname;
-  const port = 8000;
-  
-  if (hostname === 'localhost') {
-    return `http://127.0.0.1:${port}`;
-  }
-  return `http://${hostname}:${port}`;
+  return hostname === 'localhost' ? 'http://127.0.0.1:8000' : `http://${hostname}:8000`;
 };
 
 const getWsUrl = () => {
-  const hostname = window.location.hostname;
-  const port = 8000;
-  
-  if (hostname === 'localhost') {
-    return `ws://127.0.0.1:${port}`;
-  }
-  return `ws://${hostname}:${port}`;
+  // Convert http(s) to ws(s)
+  const baseUrl = getBaseUrl();
+  return baseUrl.replace(/^http/, 'ws');
 };
 
 export const API_BASE_URL = getBaseUrl();
